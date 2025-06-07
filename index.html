@@ -16,6 +16,8 @@
     
     <script src="libs/qrcode-1.5.1-qrcode.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -23,54 +25,81 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             line-height: 1.6;
-            background-color: #f5f5f5;
-            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1a202c;
             padding: 20px;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
         }
 
         .container {
-            max-width: 600px;
+            max-width: 500px;
             width: 100%;
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 
+                        0 8px 24px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2), 
+                        0 12px 32px rgba(0, 0, 0, 0.15);
         }
 
         h1 {
             text-align: center;
-            color: #2c3e50;
-            margin-bottom: 1.5rem;
+            color: #2d3748;
+            margin-bottom: 2rem;
+            font-weight: 700;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         #qrcode {
-            min-height: 200px;
+            min-height: 220px;
             text-align: center;
             margin-bottom: 2rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #999;
+            color: #718096;
             font-style: italic;
-            border: 2px dashed #ddd;
-            border-radius: 8px;
+            background: #f7fafc;
+            border: 2px dashed #e2e8f0;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        #qrcode:has(canvas) {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         #qrcode canvas {
             max-width: 100%;
             height: auto;
+            border-radius: 12px;
         }
 
         .input-section {
             display: flex;
             gap: 1rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .input-group {
@@ -82,101 +111,183 @@
         }
 
         .input-group.size-group {
-            width: 80px;
+            width: 90px;
         }
 
         label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
             font-weight: 600;
+            color: #4a5568;
+            font-size: 0.9rem;
+            letter-spacing: 0.025em;
         }
 
         textarea {
             width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #ddd;
-            border-radius: 6px;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
             resize: vertical;
             min-height: 100px;
             font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: #ffffff;
         }
 
         textarea:focus {
             outline: none;
-            border-color: #3498db;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
         }
 
         .size-input {
             width: 100%;
-            padding: 0.5rem;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            text-align: right;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            text-align: center;
+            font-family: inherit;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.3s ease;
+            background: #ffffff;
+        }
+
+        .size-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .button-group {
             display: flex;
             gap: 1rem;
-            justify-content: flex-end;
+            justify-content: center;
         }
 
         button {
-            background-color: #3498db;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 6px;
+            padding: 1rem 1.75rem;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.2s;
-            width: auto;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.025em;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        button:hover::before {
+            opacity: 1;
         }
 
         button:hover {
-            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button span {
+            position: relative;
+            z-index: 1;
         }
 
         #download-btn {
-            background-color: #27ae60;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        #download-btn::before {
+            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
         }
 
         #download-btn:hover {
-            background-color: #219a52;
+            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.4);
         }
 
         @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            
             .container {
-                padding: 1rem;
+                padding: 1.5rem;
+                border-radius: 20px;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+                margin-bottom: 1.5rem;
             }
 
             .input-section {
-                flex-direction: row;
-                align-items: flex-start;
+                flex-direction: column;
+                gap: 1.5rem;
             }
 
             .input-group.size-group {
-                width: 60px;
+                width: 100%;
             }
+
+            .button-group {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        /* Loading animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .generating {
+            animation: pulse 1.5s ease-in-out infinite;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>QR Code Generator</h1>
-        <div id="qrcode">&lt;&lt; QR Code will appear here &gt;&gt;</div>
+        <div id="qrcode">Enter text below and click Generate to create your QR code</div>
         <div class="input-section">
             <div class="input-group text-group">
-                <label for="text">Enter text or URL:</label>
+                <label for="text">Text or URL</label>
                 <textarea id="text" placeholder="Enter the content for your QR code here..."></textarea>
             </div>
             <div class="input-group size-group">
-                <label for="size">Size (px):</label>
+                <label for="size">Size</label>
                 <input type="number" id="size" class="size-input" value="200" min="100" max="1000">
             </div>
         </div>
         <div class="button-group">
-            <button onclick="generateQR()">Generate QR Code</button>
-            <button id="download-btn" onclick="downloadQR()">Download QR Code</button>
+            <button onclick="generateQR()"><span>Generate QR Code</span></button>
+            <button id="download-btn" onclick="downloadQR()"><span>Download PNG</span></button>
         </div>
     </div>
 
