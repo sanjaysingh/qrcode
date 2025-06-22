@@ -169,44 +169,45 @@
         }
 
         button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 1rem 1.75rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem 1rem;
             border-radius: 12px;
             cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 600;
+            font-size: 0.85rem;
+            font-weight: 500;
             font-family: inherit;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
             letter-spacing: 0.025em;
-        }
-
-        button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        button:hover::before {
-            opacity: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+            min-width: 90px;
+            justify-content: center;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: #cbd5e0;
         }
 
         button:active {
             transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button svg {
+            transition: transform 0.2s ease;
+        }
+
+        button:hover svg {
+            transform: scale(1.1);
         }
 
         button span {
@@ -214,16 +215,37 @@
             z-index: 1;
         }
 
-        #download-btn {
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        button[onclick="generateQR()"] {
+            color: #667eea;
+            border-color: #e6f3ff;
         }
 
-        #download-btn::before {
-            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+        button[onclick="generateQR()"]:hover {
+            color: #5a67d8;
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        #download-btn {
+            color: #48bb78;
+            border-color: #e6fffa;
         }
 
         #download-btn:hover {
-            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.4);
+            color: #38a169;
+            border-color: #48bb78;
+            background: rgba(72, 187, 120, 0.05);
+        }
+
+        #share-btn {
+            color: #ed8936;
+            border-color: #fffaf0;
+        }
+
+        #share-btn:hover {
+            color: #dd6b20;
+            border-color: #ed8936;
+            background: rgba(237, 137, 54, 0.05);
         }
 
         @media (max-width: 480px) {
@@ -257,6 +279,13 @@
 
             button {
                 width: 100%;
+                padding: 1rem;
+                font-size: 0.9rem;
+            }
+
+            button span {
+                display: block;
+                margin-top: 0.25rem;
             }
         }
 
@@ -286,8 +315,36 @@
             </div>
         </div>
         <div class="button-group">
-            <button onclick="generateQR()"><span>Generate QR Code</span></button>
-            <button id="download-btn" onclick="downloadQR()"><span>Download PNG</span></button>
+            <button onclick="generateQR()" title="Generate QR Code">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                    <rect x="5" y="5" width="3" height="3"/>
+                    <rect x="16" y="5" width="3" height="3"/>
+                    <rect x="5" y="16" width="3" height="3"/>
+                    <path d="M14 14h3v3h-3z"/>
+                    <path d="M18 14v3"/>
+                    <path d="M18 18h3"/>
+                </svg>
+                <span>Generate</span>
+            </button>
+            <button id="download-btn" onclick="downloadQR()" title="Download PNG">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7,10 12,15 17,10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span>Download</span>
+            </button>
+            <button id="share-btn" onclick="shareQR()" title="Share Link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                    <polyline points="16,6 12,2 8,6"/>
+                    <line x1="12" y1="2" x2="12" y2="15"/>
+                </svg>
+                <span>Share</span>
+            </button>
         </div>
     </div>
 
@@ -316,6 +373,9 @@
                     return;
                 }
                 qrcodeDiv.appendChild(canvas);
+                
+                // Update URL with base64 encoded text for deep linking
+                updateURL(text, size);
             });
         }
 
@@ -328,6 +388,164 @@
             link.href = canvas.toDataURL('image/png');
             link.click();
         }
+
+        function shareQR() {
+            const text = document.getElementById('text').value;
+            const size = document.getElementById('size').value;
+
+            if (!text) {
+                alert('Please generate a QR code first');
+                return;
+            }
+
+            const shareUrl = createShareableURL(text, size);
+            
+            // Try to use the Web Share API if available
+            if (navigator.share) {
+                navigator.share({
+                    title: 'QR Code Generator',
+                    text: 'Check out this QR code I generated!',
+                    url: shareUrl
+                }).catch(err => {
+                    console.log('Error sharing:', err);
+                    copyToClipboard(shareUrl);
+                });
+            } else {
+                // Fallback to copying URL to clipboard
+                copyToClipboard(shareUrl);
+            }
+        }
+
+        function createShareableURL(text, size) {
+            const baseUrl = window.location.origin + window.location.pathname;
+            const encodedText = btoa(encodeURIComponent(text));
+            return `${baseUrl}?text=${encodedText}&size=${size}`;
+        }
+
+        function updateURL(text, size) {
+            const url = createShareableURL(text, size);
+            window.history.replaceState({ text, size }, '', url);
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showNotification('Share link copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    fallbackCopyTextToClipboard(text);
+                });
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showNotification('Share link copied to clipboard!');
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+                alert('Unable to copy to clipboard. Please copy the URL manually from the address bar.');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function showNotification(message) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 1000;
+                font-weight: 500;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            // Add animation keyframes
+            if (!document.querySelector('#notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(notification);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        function loadFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const encodedText = urlParams.get('text');
+            const size = urlParams.get('size');
+
+            if (encodedText) {
+                try {
+                    const decodedText = decodeURIComponent(atob(encodedText));
+                    document.getElementById('text').value = decodedText;
+                    
+                    if (size && !isNaN(size)) {
+                        document.getElementById('size').value = size;
+                    }
+                    
+                    // Auto-generate QR code if text is loaded from URL
+                    generateQR();
+                } catch (error) {
+                    console.error('Error decoding text from URL:', error);
+                }
+            }
+        }
+
+        // Load content from URL on page load
+        window.addEventListener('load', loadFromURL);
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function(event) {
+            if (event.state) {
+                document.getElementById('text').value = event.state.text || '';
+                document.getElementById('size').value = event.state.size || 200;
+                if (event.state.text) {
+                    generateQR();
+                }
+            } else {
+                loadFromURL();
+            }
+        });
 
         // Generate QR code on Enter key
         document.getElementById('text').addEventListener('keypress', function(e) {
