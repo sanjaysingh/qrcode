@@ -29,12 +29,67 @@
             line-height: 1.6;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #1a202c;
-            padding: 20px;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            z-index: 100;
+        }
+
+        .nav-bar .app-icon-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .nav-bar .app-icon {
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .nav-bar .app-icon:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        .nav-bar .app-icon:active {
+            transform: scale(0.98);
+        }
+
+        .nav-bar .nav-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2d3748;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .main-content {
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            padding: 80px 20px 20px;
         }
 
         .container {
@@ -54,18 +109,6 @@
             transform: translateY(-5px);
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2), 
                         0 12px 32px rgba(0, 0, 0, 0.15);
-        }
-
-        h1 {
-            text-align: center;
-            color: #2d3748;
-            margin-bottom: 2rem;
-            font-weight: 700;
-            font-size: 2rem;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .qrcode-wrapper {
@@ -287,20 +330,27 @@
         }
 
         @media (max-width: 480px) {
-            body {
-                padding: 15px;
+            .nav-bar {
+                padding: 10px 16px;
+            }
+
+            .nav-bar .app-icon {
+                width: 32px;
+                height: 32px;
+            }
+
+            .nav-bar .nav-title {
+                font-size: 1.1rem;
+            }
+
+            .main-content {
+                padding: 70px 15px 15px;
             }
             
             .container {
                 padding: 1.5rem;
                 border-radius: 20px;
             }
-
-            h1 {
-                font-size: 1.75rem;
-                margin-bottom: 1.5rem;
-            }
-
         }
 
         /* Loading animation */
@@ -315,8 +365,14 @@
     </style>
 </head>
 <body>
+    <nav class="nav-bar">
+        <a href="#" class="app-icon-link" onclick="goToHome(event)" title="Home">
+            <img src="qr-icon.svg" alt="QR Code Generator" class="app-icon">
+        </a>
+        <span class="nav-title">QR Code Generator</span>
+    </nav>
+    <main class="main-content">
     <div class="container">
-        <h1>QR Code Generator</h1>
         <div class="qrcode-wrapper">
             <div class="qrcode-actions">
                 <button id="download-btn" onclick="downloadQR()" title="Download PNG" disabled>
@@ -366,8 +422,17 @@
             </button>
         </div>
     </div>
+    </main>
 
     <script>
+        function goToHome(e) {
+            e.preventDefault();
+            const homeUrl = window.location.origin + window.location.pathname;
+            if (window.location.href !== homeUrl) {
+                window.location.href = homeUrl;
+            }
+        }
+
         function updateButtonStates() {
             const text = document.getElementById('text').value.trim();
             const hasQRCode = !!document.querySelector('#qrcode canvas');

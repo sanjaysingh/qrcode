@@ -6,10 +6,25 @@ test.describe('QR Code Generator', () => {
   });
 
   test('displays the main UI elements', async ({ page }) => {
-    await expect(page.locator('h1')).toHaveText('QR Code Generator');
+    await expect(page.locator('.nav-bar .nav-title')).toHaveText('QR Code Generator');
     await expect(page.locator('#text')).toBeVisible();
     await expect(page.locator('#generate-btn')).toBeVisible();
     await expect(page.locator('#qrcode')).toBeVisible();
+  });
+
+  test('displays navigation bar with app icon and title', async ({ page }) => {
+    const navBar = page.locator('.nav-bar');
+    await expect(navBar).toBeVisible();
+    await expect(navBar.locator('.app-icon')).toBeVisible();
+    await expect(navBar.locator('.nav-title', { hasText: 'QR Code Generator' })).toBeVisible();
+  });
+
+  test('app icon navigates to home when on shared URL', async ({ page }) => {
+    await page.goto('/?text=dGVzdA%3D%3D&size=200');
+    expect(page.url()).toContain('?text=');
+
+    await page.locator('.app-icon-link').click();
+    expect(page.url()).not.toContain('?');
   });
 
   test('generate button is disabled when text is empty', async ({ page }) => {
