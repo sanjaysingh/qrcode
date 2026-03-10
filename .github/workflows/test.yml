@@ -1,16 +1,19 @@
-name: Integration Tests
+# Run tests on pull requests - required for merge when branch protection is configured
+name: Test
 
 on:
-  push:
-    branches: [main, 'cursor/*']
   pull_request:
+    branches: [main]
+  push:
     branches: [main]
 
 jobs:
   test:
+    name: Unit & Integration Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -23,6 +26,9 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
+
+      - name: Run unit tests
+        run: npm run test
 
       - name: Run integration tests
         run: npm run test:integration

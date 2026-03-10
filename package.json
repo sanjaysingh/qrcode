@@ -1,13 +1,17 @@
 {
-  "name": "qrcode-generator",
+  "name": "qr-code-generator",
   "version": "1.0.0",
-  "private": true,
+  "description": "A simple web-based QR code generator",
+  "type": "module",
   "scripts": {
-    "test": "playwright test",
-    "test:integration": "playwright test"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "playwright test",
+    "test:all": "npm run test && npm run test:integration"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",
-    "serve": "^14.2.4"
+    "serve": "^14.2.0",
+    "vitest": "^2.1.0"
   }
 }

@@ -138,3 +138,8 @@ test-results/
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
