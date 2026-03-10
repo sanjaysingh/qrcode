@@ -23,5 +23,18 @@ A simple web-based QR code generator that creates QR codes from text or URLs.
 - `index.html` - Main application
 - `libs/qrcode-1.5.1-qrcode.min.js` - QR code generation library
 - `qr-icon.svg` - App icon
+- `src/qr-utils.js` - Shared utility functions (used by tests)
 
-No installation required. Just open the HTML file in any modern web browser.
+## Development & Testing
+
+```bash
+npm install
+npm run test          # Unit tests
+npm run test:integration  # Integration tests (Playwright)
+npm run test:all      # Run all tests
+```
+
+## Pull Request Requirements
+
+Tests must pass before merging. Configure branch protection in **Settings → Branches → Add rule** for `main`:
+- Require status checks to pass: **Test / Unit & Integration Tests**
