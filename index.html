@@ -123,7 +123,7 @@
         }
 
         .qrcode-actions button {
-            padding: 0.5rem;
+            padding: 0.5rem 0.75rem;
             min-width: auto;
         }
 
@@ -307,26 +307,15 @@
             background: rgba(102, 126, 234, 0.05);
         }
 
-        #download-btn {
+        #action-btn {
             color: #48bb78;
             border-color: #e6fffa;
         }
 
-        #download-btn:hover:not(:disabled) {
+        #action-btn:hover:not(:disabled) {
             color: #38a169;
             border-color: #48bb78;
             background: rgba(72, 187, 120, 0.05);
-        }
-
-        #share-btn {
-            color: #ed8936;
-            border-color: #fffaf0;
-        }
-
-        #share-btn:hover:not(:disabled) {
-            color: #dd6b20;
-            border-color: #ed8936;
-            background: rgba(237, 137, 54, 0.05);
         }
 
         @media (max-width: 480px) {
@@ -375,19 +364,13 @@
     <div class="container">
         <div class="qrcode-wrapper">
             <div class="qrcode-actions">
-                <button id="download-btn" onclick="downloadQR()" title="Download PNG" disabled>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="7,10 12,15 17,10"/>
-                        <line x1="12" y1="15" x2="12" y2="3"/>
-                    </svg>
-                </button>
-                <button id="share-btn" onclick="shareQR()" title="Share Link" disabled>
+                <button id="action-btn" onclick="handleQRAction()" title="Save / Share" disabled>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
                         <polyline points="16,6 12,2 8,6"/>
                         <line x1="12" y1="2" x2="12" y2="15"/>
                     </svg>
+                    <span>Save</span>
                 </button>
             </div>
             <div id="qrcode">Enter text below and click Generate to create your QR code</div>
@@ -437,8 +420,7 @@
             const text = document.getElementById('text').value.trim();
             const hasQRCode = !!document.querySelector('#qrcode canvas');
             document.getElementById('generate-btn').disabled = !text;
-            document.getElementById('download-btn').disabled = !hasQRCode;
-            document.getElementById('share-btn').disabled = !hasQRCode;
+            document.getElementById('action-btn').disabled = !hasQRCode;
         }
 
         function generateQR() {
@@ -471,41 +453,37 @@
             });
         }
 
-        function downloadQR() {
+        async function handleQRAction() {
             const canvas = document.querySelector('#qrcode canvas');
             if (!canvas) return;
 
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            const file = new File([blob], 'qrcode.png', { type: 'image/png' });
+
+            // Try Web Share API with files (native share sheet on mobile includes save to photos)
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        title: 'QR Code',
+                        files: [file]
+                    });
+                    return;
+                } catch (err) {
+                    // User cancelled, no fallback needed
+                    if (err.name === 'AbortError') return;
+                    console.log('Share failed:', err);
+                }
+            }
+
+            // Desktop fallback: direct download
+            const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.download = 'qrcode.png';
-            link.href = canvas.toDataURL('image/png');
+            link.href = url;
+            document.body.appendChild(link);
             link.click();
-        }
-
-        function shareQR() {
-            const text = document.getElementById('text').value;
-            const size = document.getElementById('size').value;
-
-            if (!text) {
-                alert('Please generate a QR code first');
-                return;
-            }
-
-            const shareUrl = createShareableURL(text, size);
-            
-            // Try to use the Web Share API if available
-            if (navigator.share) {
-                navigator.share({
-                    title: 'QR Code Generator',
-                    text: 'Check out this QR code I generated!',
-                    url: shareUrl
-                }).catch(err => {
-                    console.log('Error sharing:', err);
-                    copyToClipboard(shareUrl);
-                });
-            } else {
-                // Fallback to copying URL to clipboard
-                copyToClipboard(shareUrl);
-            }
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         }
 
         function createShareableURL(text, size) {
