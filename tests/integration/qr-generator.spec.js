@@ -43,18 +43,16 @@ test.describe('QR Code Generator', () => {
     await expect(page.locator('#qrcode canvas')).toBeVisible({ timeout: 5000 });
   });
 
-  test('download and share buttons are disabled before generating', async ({ page }) => {
-    await expect(page.locator('#download-btn')).toBeDisabled();
-    await expect(page.locator('#share-btn')).toBeDisabled();
+  test('action button is disabled before generating', async ({ page }) => {
+    await expect(page.locator('#action-btn')).toBeDisabled();
   });
 
-  test('download and share buttons are enabled after generating', async ({ page }) => {
+  test('action button is enabled after generating', async ({ page }) => {
     await page.locator('#text').fill('Test content');
     await page.locator('#generate-btn').click();
 
     await expect(page.locator('#qrcode canvas')).toBeVisible({ timeout: 5000 });
-    await expect(page.locator('#download-btn')).toBeEnabled();
-    await expect(page.locator('#share-btn')).toBeEnabled();
+    await expect(page.locator('#action-btn')).toBeEnabled();
   });
 
   test('updates URL with encoded content after generating', async ({ page }) => {
