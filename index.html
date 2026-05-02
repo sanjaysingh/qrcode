@@ -117,9 +117,70 @@
 
         .qrcode-actions {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
+            align-items: center;
             gap: 0.5rem;
             margin-bottom: 0.5rem;
+        }
+
+        .qrcode-actions-left {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .qrcode-actions-right {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .color-picker-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .color-picker-wrapper input[type="color"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .color-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            min-width: auto;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .color-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: #cbd5e0;
+        }
+
+        .color-btn svg {
+            color: #4a5568;
+        }
+
+        .color-preview {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            background: #000000;
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
 
         .qrcode-actions button {
@@ -166,7 +227,7 @@
         }
 
         .input-section {
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
         }
 
         .input-header {
@@ -364,28 +425,42 @@
     <div class="container">
         <div class="qrcode-wrapper">
             <div class="qrcode-actions">
-                <button id="action-btn" onclick="handleQRAction()" title="Save / Share" disabled>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
-                        <polyline points="16,6 12,2 8,6"/>
-                        <line x1="12" y1="2" x2="12" y2="15"/>
-                    </svg>
-                    <span>Save</span>
-                </button>
+                <div class="qrcode-actions-left">
+                    <select id="size" class="size-select" title="QR code size">
+                        <option value="128">128</option>
+                        <option value="200" selected>200</option>
+                        <option value="256">256</option>
+                        <option value="384">384</option>
+                        <option value="512">512</option>
+                    </select>
+                    <div class="color-picker-wrapper">
+                        <button class="color-btn" title="QR code color">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>
+                                <path d="M12 12 L12 2" stroke-linecap="round"/>
+                                <path d="M12 12 L20 12" stroke-linecap="round"/>
+                            </svg>
+                            <div class="color-preview" id="color-preview"></div>
+                        </button>
+                        <input type="color" id="color" value="#000000" title="Choose QR code color">
+                    </div>
+                </div>
+                <div class="qrcode-actions-right">
+                    <button id="action-btn" onclick="handleQRAction()" title="Save / Share" disabled>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                            <polyline points="16,6 12,2 8,6"/>
+                            <line x1="12" y1="2" x2="12" y2="15"/>
+                        </svg>
+                        <span>Save</span>
+                    </button>
+                </div>
             </div>
             <div id="qrcode">Enter text below and click Generate to create your QR code</div>
         </div>
         <div class="input-section">
-            <div class="input-header">
-                <label for="text">Text or URL</label>
-                <select id="size" class="size-select" title="QR code size">
-                    <option value="128">128</option>
-                    <option value="200" selected>200</option>
-                    <option value="256">256</option>
-                    <option value="384">384</option>
-                    <option value="512">512</option>
-                </select>
-            </div>
+            <label for="text">Text or URL</label>
             <textarea id="text" placeholder="Enter the content for your QR code here..."></textarea>
         </div>
         <div class="generate-row">
@@ -426,6 +501,7 @@
         function generateQR() {
             const text = document.getElementById('text').value.trim();
             const size = document.getElementById('size').value;
+            const color = document.getElementById('color').value;
             const qrcodeDiv = document.getElementById('qrcode');
 
             if (!text) {
@@ -438,7 +514,11 @@
             // Generate new QR code
             QRCode.toCanvas(document.createElement('canvas'), text, {
                 width: size,
-                height: size
+                height: size,
+                color: {
+                    dark: color,
+                    light: '#ffffff'
+                }
             }, function (error, canvas) {
                 if (error) {
                     console.error(error);
@@ -447,10 +527,14 @@
                 }
                 qrcodeDiv.appendChild(canvas);
                 updateButtonStates();
-                
+
                 // Update URL with base64 encoded text for deep linking
-                updateURL(text, size);
+                updateURL(text, size, color);
             });
+        }
+
+        function updateColorPreview(color) {
+            document.getElementById('color-preview').style.background = color;
         }
 
         async function handleQRAction() {
@@ -486,15 +570,19 @@
             URL.revokeObjectURL(url);
         }
 
-        function createShareableURL(text, size) {
+        function createShareableURL(text, size, color) {
             const baseUrl = window.location.origin + window.location.pathname;
             const encodedText = btoa(encodeURIComponent(text));
-            return `${baseUrl}?text=${encodedText}&size=${size}`;
+            let url = `${baseUrl}?text=${encodedText}&size=${size}`;
+            if (color && color !== '#000000') {
+                url += `&color=${encodeURIComponent(color)}`;
+            }
+            return url;
         }
 
-        function updateURL(text, size) {
-            const url = createShareableURL(text, size);
-            window.history.replaceState({ text, size }, '', url);
+        function updateURL(text, size, color) {
+            const url = createShareableURL(text, size, color);
+            window.history.replaceState({ text, size, color }, '', url);
         }
 
         function copyToClipboard(text) {
@@ -583,22 +671,31 @@
             const urlParams = new URLSearchParams(window.location.search);
             const encodedText = urlParams.get('text');
             const size = urlParams.get('size');
+            const color = urlParams.get('color');
 
             if (encodedText) {
                 try {
                     const decodedText = decodeURIComponent(atob(encodedText));
                     document.getElementById('text').value = decodedText;
-                    
+
                     const sizeSelect = document.getElementById('size');
                     if (size && sizeSelect.querySelector('option[value="' + size + '"]')) {
                         sizeSelect.value = size;
                     }
-                    
+
+                    const colorInput = document.getElementById('color');
+                    if (color) {
+                        colorInput.value = decodeURIComponent(color);
+                    }
+                    updateColorPreview(colorInput.value);
+
                     // Auto-generate QR code if text is loaded from URL
                     generateQR();
                 } catch (error) {
                     console.error('Error decoding text from URL:', error);
                 }
+            } else {
+                updateColorPreview(document.getElementById('color').value);
             }
             updateButtonStates();
         }
@@ -620,6 +717,10 @@
                 } else {
                     sizeSelect.value = 200;
                 }
+                const colorVal = event.state.color || '#000000';
+                const colorInput = document.getElementById('color');
+                colorInput.value = colorVal;
+                updateColorPreview(colorVal);
                 if (event.state.text) {
                     generateQR();
                 }
@@ -639,6 +740,23 @@
 
         // Update button states on input
         document.getElementById('text').addEventListener('input', updateButtonStates);
+
+        // Regenerate QR code when size changes (if text exists)
+        document.getElementById('size').addEventListener('change', function() {
+            const text = document.getElementById('text').value.trim();
+            if (text && document.querySelector('#qrcode canvas')) {
+                generateQR();
+            }
+        });
+
+        // Regenerate QR code when color changes (if text exists)
+        document.getElementById('color').addEventListener('input', function(e) {
+            updateColorPreview(e.target.value);
+            const text = document.getElementById('text').value.trim();
+            if (text && document.querySelector('#qrcode canvas')) {
+                generateQR();
+            }
+        });
     </script>
 </body>
 </html>
